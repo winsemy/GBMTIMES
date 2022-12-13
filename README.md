@@ -13,13 +13,13 @@
 <br>
 
 ## 🔧 개발 환경
--FRONT : JSP, HTML, CSS, JavaScript, jQuery, AJAX, BootStrap
-<br>
--BACK : Java, JDBC, Servlet, Spring, Maven
-<br>
--SERVER : Apache tomcat 9.0
-<br>
--DATABASE : Oracle 11g
+- OS : Microsoft Windows 10
+- WAS : Apache Tomcat 9.0
+- IDE : Eclipse
+- DB : Oracle DB
+- 개발 언어 : HTML, CSS, Bootstrap / JavaScript, jQuery, ajax / Java 11
+- 개발 프레임워크 : Spring, Mybatis, Maven
+- 라이브러리 : jQuery, jackson-json
 <br>
 
 ## 📌 MY 구현 기능
