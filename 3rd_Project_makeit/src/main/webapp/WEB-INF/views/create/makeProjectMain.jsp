@@ -122,6 +122,90 @@
 	</div>
 </body>
 <script>
+$(function() {
+	 var allSave = 0;
+
+	 	btnDisabled();
+	 	saveCheck();
+	 	
+	 	function saveCheck() {
+		   	var membershipVal = $('#notNullMembership').html();
+		   	var inforVal = $('#notNullInfor').html();
+		   	var storyVal = $('#notNullStory').html();
+		   	var rewardVal = $('#notNullReward').html();
+		   	var makerVal = $('#notNullMaker').html();
+		   	console.log("membershipVal : " + membershipVal);
+		   	console.log("inforVal : " + inforVal);
+		   	console.log("storyVal : " + storyVal);
+		   	console.log("rewardVal : " + rewardVal);
+		   	console.log("makerVal : " + makerVal);
+		   	if(membershipVal == '작성 완료' && inforVal == '작성 완료' && storyVal == '작성 완료' && rewardVal == '작성 완료' && makerVal == '작성 완료') {
+		   		allSave = 1;
+		   	} else {
+		   		allSave = 0;
+		   	}
+		   	judgeBtn();
+	 	}
+	   
+	    // 버튼 활성화 여부를 결정하는 함수
+	    function judgeBtn() {
+	      if (allSave === 1) {
+	    	  console.log("btnEnabled()실행하자");
+	    	  $('#projectStatus').html("펀딩 작성 완료!");
+	    	  $('#projectStatus').css('color', '#f05757');
+	        btnEnabled();
+	      } else {
+	    	  console.log("btnDisabled()실행하자");
+	        btnDisabled();
+	      }
+	    }
+
+	    function btnDisabled() {
+	    	console.log("btnDisabled() 실행완료")
+	      $('#submitBtn').css('background-color', '#adadad');
+	      $('#submitBtn').css('border-color', '#adadad');
+	      // 버튼이 비활성화되었을 때 마우스오버 효과를 없애기 위한 코드
+	      setShadowNone();
+	      $('#submitBtn').attr('disabled', true);
+	      $('#previewBtn').attr('disabled', true);
+	      $('#previewBtn').css('border-color', 'rgb(122 126 126 / 23%)');
+	      $('#previewBtn').css('color', 'rgb(171 167 167 / 54%)');
+	      
+	   
+	    }
+
+	    function btnEnabled() {
+	    	console.log("btnEnabled() 실행완료")
+	      $('#submitBtn').css('background-color', '#00c4c4');
+	      $('#submitBtn').removeAttr('disabled');
+	      $('#submitBtn').on('mouseover', setShadow);
+	      $('#submitBtn').on('mouseleave', setShadowNone);
+	      
+	      $('#previewBtn').css('border-color', 'rgb(122 126 126 / 70%)');
+	      $('#previewBtn').css('color', 'rgb(0 0 0 / 65%)');
+	      
+	      $('#previewBtn').removeAttr('disabled');
+	      $('#previewBtn').on('mouseover', setShadow2);
+	      $('#previewBtn').on('mouseleave', setShadowNone2);
+	    }
+
+	    function setShadow() {
+	      $('#submitBtn').css('box-shadow', '0 2px 4px 0 rgba(0, 0, 0, 0.50)');
+	    }
+
+	    function setShadowNone() {
+	      $('#submitBtn').css('box-shadow', 'none');
+	    
+	    }
+	    function setShadow2() {
+			$('#previewBtn').css('box-shadow', '0 2px 4px 0 rgba(0, 0, 0, 0.50)');
+	      }
+
+	      function setShadowNone2() {
+	        $('#previewBtn').css('box-shadow', 'none');
+	      }
+	});
+
  function sumbitData() {
 	 var result = confirm("펀딩을 최종 등록하시나요?");
 	 if(result){
@@ -160,89 +244,6 @@ function popUp() {
 }
 
 </script>
-<script>
-$(function() {
- var allSave = 0;
 
- 	btnDisabled();
- 	saveCheck();
- 	
- 	function saveCheck() {
-	   	var membershipVal = $('#notNullMembership').html();
-	   	var inforVal = $('#notNullInfor').html();
-	   	var storyVal = $('#notNullStory').html();
-	   	var rewardVal = $('#notNullReward').html();
-	   	var makerVal = $('#notNullMaker').html();
-	   	console.log("membershipVal : " + membershipVal);
-	   	console.log("inforVal : " + inforVal);
-	   	console.log("storyVal : " + storyVal);
-	   	console.log("rewardVal : " + rewardVal);
-	   	console.log("makerVal : " + makerVal);
-	   	if(membershipVal == '작성 완료' && inforVal == '작성 완료' && storyVal == '작성 완료' && rewardVal == '작성 완료' && makerVal == '작성 완료') {
-	   		allSave = 1;
-	   	} else {
-	   		allSave = 0;
-	   	}
-	   	judgeBtn();
- 	}
-   
-    // 버튼 활성화 여부를 결정하는 함수
-    function judgeBtn() {
-      if (allSave === 1) {
-    	  console.log("btnEnabled()실행하자");
-    	  $('#projectStatus').html("펀딩 작성 완료!");
-    	  $('#projectStatus').css('color', '#f05757');
-        btnEnabled();
-      } else {
-    	  console.log("btnDisabled()실행하자");
-        btnDisabled();
-      }
-    }
-
-    function btnDisabled() {
-    	console.log("btnDisabled() 실행완료")
-      $('#submitBtn').css('background-color', '#90949');
-      // 버튼이 비활성화되었을 때 마우스오버 효과를 없애기 위한 코드
-      setShadowNone();
-      $('#submitBtn').attr('disabled', true);
-      $('#previewBtn').attr('disabled', true);
-      $('#previewBtn').css('border-color', 'rgb(122 126 126 / 23%)');
-      $('#previewBtn').css('color', 'rgb(171 167 167 / 54%)');
-      
-   
-    }
-
-    function btnEnabled() {
-    	console.log("btnEnabled() 실행완료")
-      $('#submitBtn').css('background-color', '#00c4c4');
-      $('#submitBtn').removeAttr('disabled');
-      $('#submitBtn').on('mouseover', setShadow);
-      $('#submitBtn').on('mouseleave', setShadowNone);
-      
-      $('#previewBtn').css('border-color', 'rgb(122 126 126 / 70%)');
-      $('#previewBtn').css('color', 'rgb(0 0 0 / 65%)');
-      
-      $('#previewBtn').removeAttr('disabled');
-      $('#previewBtn').on('mouseover', setShadow2);
-      $('#previewBtn').on('mouseleave', setShadowNone2);
-    }
-
-    function setShadow() {
-      $('#submitBtn').css('box-shadow', '0 2px 4px 0 rgba(0, 0, 0, 0.50)');
-    }
-
-    function setShadowNone() {
-      $('#submitBtn').css('box-shadow', 'none');
-    
-    }
-    function setShadow2() {
-		$('#previewBtn').css('box-shadow', '0 2px 4px 0 rgba(0, 0, 0, 0.50)');
-      }
-
-      function setShadowNone2() {
-        $('#previewBtn').css('box-shadow', 'none');
-      }
-});
-</script>
 
 </html>

@@ -265,8 +265,7 @@
 							<div class="tooltipmobile_label">
 								<p>성인 인증(선택 사항)</p>
 							</div>
-							<div style="font-size: 15px; margin-bottom: 15px; color: gray;">19세
-								이상만 사용할 수 있는 리워드인 경우 체크해 주세요. 체크 시 성인인 서포터만 해당 프로젝트에 펀딩할 수 있어요.<br>
+							<div style="font-size: 15px; margin-bottom: 15px; color: gray;">19세 이상만 사용할 수 있는 리워드인 경우 체크해 주세요. 체크 시 성인인 서포터만 해당 프로젝트에 펀딩할 수 있어요.<br>
 								예시) 전통주, 성인 대상 공연 티켓 등</div>
 							<input type="checkbox" /> 19세 이상 펀딩 가능한 리워드입니다.
 						</div>

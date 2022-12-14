@@ -22,9 +22,9 @@
 							<c:forEach var="fund" items="${myFundList }">
 								<c:if test="${not empty fund.fundTitle }">
 									<div class="col-md-6 col-lg-4">
-										<div class="card border-0 transform-on-hover">
+										<div class="card border-0 transform-on-hover" style="width:340px; ">
 											<a class="lightbox" href="fundStatus.do?fundTitle=${fund.fundTitle}"> 
-												<img src="img/fundingMainImg/${fund.fundMainImg }" alt="Card Image" class="card-img-top">
+												<img src="img/fundingMainImg/${fund.fundMainImg }" alt="Card Image" class="card-img-top" style="width:340px; height:222px;">
 											</a>
 											<div class="card-body">
 												<h6 id="listTitle">

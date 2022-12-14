@@ -15,10 +15,9 @@
 					<label class="mi label dropdown_label">
 						<div class="tooltopmobile_tooltip">
 							<div class="tooltipmobile_label">
-								<p>요금제 선택</p>
+								<h2 class="fundingFromContainer_title">요금제 선택</h2>
 							</div>
-							<div style="font-size: 13px; margin-bottom: 15px; color: gray;">
-								원하는 요금제를 선택해 주세요.</div>
+							<p style="margin-bottom:10px;">원하는 요금제를 선택해 주세요.</p>
 
 							<div>
 								<ul>
@@ -140,82 +139,111 @@ var fundIdx = ${fund.fundIdx};
 var buttonHtml = '이걸로 할게요';
 var choiceHtml = '✔️이걸로 골랐어요';
 var choiceBg= 'linear-gradient(118deg,#bbf5c5,#65bfce)';
+var togglePrice = 0;
 $(function() {
+	btnDisabled();
 	//저장된 데이터 있을 시 불러오기
 	if ('${getSaveData.fundMembership}' != null) {
 		if('${getSaveData.fundMembership}' == '라이트') {
 			$('#b1').html(choiceHtml).css('background-image', choiceBg);
+			btnEnabled();
 		}
 		if('${getSaveData.fundMembership}' == '베이직') {
 			$('#b2').html(choiceHtml).css('background-image', choiceBg);
+			btnEnabled();
 		}
 		if('${getSaveData.fundMembership}' == '프로') {
 			$('#b3').html(choiceHtml).css('background-image',choiceBg);
+			btnEnabled();
 		}
+		
+	}
+});
+$('#b1').click(function() {
+	btnEnabled();
+	choiceMembership = '라이트';
+	if ($(this).html() == buttonHtml) {
+		$(this).html(choiceHtml).css('background-image', choiceBg);
+		$('#b2, #b3').html(buttonHtml).css('background', '');
+	} else {
+		$(this).html(buttonHtml).css('background','');
 	}
 	
-	$('#b1').click(function() {
-		choiceMembership = '라이트';
-		if ($(this).html() == buttonHtml) {
-			$(this).html(choiceHtml)
-					.css('background-image', choiceBg);
-			$('#b2, #b3').html(buttonHtml).css(
-					'background', '');
-		} else {
-			$(this).html(buttonHtml).css('background','');
-		}
-	});
+});
 
-	$('#b2').click(function() {
-		choiceMembership = '베이직';
-		if ($(this).html() == buttonHtml) {
-			$(this).html(choiceHtml)
-					.css('background-image', choiceBg);
-			$('#b1, #b3').html(buttonHtml).css(
-					'background', '');
-		} else {
-			$(this).html(buttonHtml).css('background','');
-
-		}
-	});
-
-	$('#b3').click(function() {
-		choiceMembership = '프로';					
-		if ($(this).html() == buttonHtml) {
-			$(this).html(choiceHtml).css('background-image',choiceBg);
-			$('#b1, #b2').html(buttonHtml).css('background', '');
-		} else {
-			$(this).html(buttonHtml).css('background','');
-		}
-	});
-			
+$('#b2').click(function() {
+	btnEnabled();
+	choiceMembership = '베이직';
+	if ($(this).html() == buttonHtml) {
+		$(this).html(choiceHtml).css('background-image', choiceBg);
+		$('#b1, #b3').html(buttonHtml).css('background', '');
+	} else {
+		$(this).html(buttonHtml).css('background','');
+	}
 	
 });
+
+$('#b3').click(function() {
+	btnEnabled();
+	choiceMembership = '프로';					
+	if ($(this).html() == buttonHtml) {
+		$(this).html(choiceHtml).css('background-image',choiceBg);
+		$('#b1, #b2').html(buttonHtml).css('background', '');
+	} else {
+		$(this).html(buttonHtml).css('background','');
+	}
+	
+});
+function btnDisabled() {
+	console.log("비활성화");
+	  $('#save_bt').css('background-color', '#90949c');
+	  // 버튼이 비활성화되었을 때 마우스오버 효과를 없애기 위한 코드
+	  setShadowNone();
+	  $('#save_bt').attr('disabled', true);
+	  // console.log('btnDisabled');
+	}
+
+function btnEnabled() {
+	console.log("활성화");
+  $('#save_bt').css('background-color', '#00c4c4');
+  // 아래 코드도 버튼 활성화가 가능하다.
+  // $('#submit-btn').attr('disabled', false);
+  $('#save_bt').removeAttr('disabled');
+  $('#save_bt').on('mouseover', setShadow);
+  $('#save_bt').on('mouseleave', setShadowNone);
+}
+
+function setShadow() {
+  $('#save_bt').css('box-shadow', '0 2px 4px 0 rgba(0, 0, 0, 0.50)');
+}
+
+function setShadowNone() {
+  $('#save_bt').css('box-shadow', 'none');
+}
 </script>
 <script>
-$(function() {
-	$('#save_bt').click(
-			function() {
-				if ($('#b1').html() == choiceHtml || $('#b2').html() == choiceHtml || $('#b3').html() == choiceHtml) {
-					$.ajax("saveData.do", {
-						type : "post",
-						data : JSON.stringify({fundMembership : choiceMembership , fundIdx : fundIdx }), // 서버쪽으로 JSON 문자열 전달
-						contentType : "application/json", // 서버로 전송하는 컨텐츠 유형(JSON 형식)
-						dataType : "text", // 서버로부터 응답받는 데이터 형식
-						success : function(data) {
-							alert("저장했어요.");
-							console.log(data);
-						},
-						error : function(jqXHR, textStatus,
-								errorThrown) {
-							alert("ERROR : " + textStatus
-									+ " : " + errorThrown);
-						}
-					});
+$('#save_bt').click(
+	function() {
+		if ($('#b1').html() == choiceHtml || $('#b2').html() == choiceHtml || $('#b3').html() == choiceHtml) {
+			$.ajax("saveData.do", {
+				type : "post",
+				data : JSON.stringify({fundMembership : choiceMembership , fundIdx : fundIdx }), // 서버쪽으로 JSON 문자열 전달
+				contentType : "application/json", // 서버로 전송하는 컨텐츠 유형(JSON 형식)
+				dataType : "text", // 서버로부터 응답받는 데이터 형식
+				success : function(data) {
+					alert("저장했어요.");
+					console.log(data);
+				},
+				error : function(jqXHR, textStatus,
+						errorThrown) {
+					alert("ERROR : " + textStatus
+							+ " : " + errorThrown);
 				}
-				
 			});
-});
+		}
+		
+	});
+
 </script>
 
 </body>
