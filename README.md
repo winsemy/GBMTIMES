@@ -25,6 +25,10 @@
 - 라이브러리 : jQuery, jackson-json
 <br>
 
+## 📌 ERD
+<img width="2034" alt="erd2" src="https://user-images.githubusercontent.com/112562015/208099595-ed925580-2d4d-4f9b-ba17-c61d63ef26a5.png">
+<br><br>
+
 ## 📌 MY 구현 기능
 #### [펀딩 프로젝트 만들기]
 아래 블로그에서 자세한 화면 구현을 볼 수 있습니다.<br>
