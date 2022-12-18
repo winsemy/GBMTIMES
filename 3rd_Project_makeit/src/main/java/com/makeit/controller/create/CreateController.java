@@ -152,7 +152,70 @@ public class CreateController {
 
 		return "redirect:/create_pricing.do";
 	}
+	
+	
+	/*****/
+//	@RequestMapping(value = "/pricingOrder.do", method = RequestMethod.POST)
+//	@ResponseBody
+//	public void goOrderPage(@RequestBody FundVO vo, HttpSession request) throws Exception {
+//		request.setAttribute("pricing", vo);
+//		MemberVO member = (MemberVO)request.getAttribute("user");
+//		String memberId = member.getMemberId();
+//		MemberVO memberInfor = createService.getMakerInfor(memberId);
+//		System.out.println("memberInfor : " + memberInfor);
+//		
+//		request.setAttribute("memberInfor", memberInfor);
+//		StorehomeVO option = storeService.storeOrder(vo.getStoreOption());
+//		List<StorehomeVO> coupon = storeService.couponList(vo);
+//		System.out.println("option : " +option );
+//		System.out.println("detail : " +detail );
+		
+//		model.addAttribute("coupon", coupon);
+//		model.addAttribute("detail", detail);
+//		model.addAttribute("option", option);
+//		model.addAttribute("member", member);
+		
+//	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/pricingOrder.do", method = RequestMethod.POST)
+	public void goOrderPage(FundVO vo, MemberVO mvo, HttpSession request) throws IllegalStateException, IOException {
+		System.out.println("vo : " + vo);
+		System.out.println("mvo : " + mvo);
+		request.setAttribute("pricing", vo);
+		
+		String memberId = mvo.getMemberId();
+		//멤버정보 가져오기
+		MemberVO memberInfor = createService.getMakerInfor(memberId);
+		
+		memberInfor.setMakerPricingName(mvo.getMakerPricingName());
+		memberInfor.setMakerPricingPrice(mvo.getMakerPricingPrice());
+		System.out.println("memberInfor : " + memberInfor);
+		request.setAttribute("memberInfor", memberInfor);
+		
+	}
+	//요금제 결제 내역 인서트
+	@GetMapping("/insertMakerPricing.do")
+	public void insertMakerPricing(MemberVO mvo, Model model) {
+		System.out.println("인서트 mvo : " + mvo);
+		createService.pricingInsert(mvo);
+	}
 
+	//결제후 페이지 이동
+	@GetMapping("/makerOrderOk.do")
+	public String makerOrderOk(MemberVO mvo, Model model) {
+		MemberVO orderinfo = createService.orderinfo(mvo);
+		System.out.println("orderinfo : " + orderinfo);
+		model.addAttribute("orderinfo",orderinfo);
+		return "create/pricingOrderOk";
+	}
+	
+	/*****/
+	@RequestMapping("/goOrderPage.do")
+	public String goOrderPage() {
+		return "create/pricingOrder";
+	}
+	
 	// 기본 정보 페이지 이동
 	@RequestMapping("/create_infor.do")
 	public String createGoBasicInfor(FundVO vo, HttpSession request, Model model) {
@@ -179,6 +242,8 @@ public class CreateController {
 		System.out.println("uploadPath : " + uploadPath);
 		
 		MultipartFile uploadFile = vo.getUploadFile();
+		//String fileRoot = "c:/mystudy/70_Spring/3rd_Project_makeit/src/main/webapp/img/fundingMainImg/";
+		
 		
 		if (uploadFile == null) {
 			System.out.println("::: 기본정보- 메인 이미지  uploadFile 파라미터가 전달되지 않았을때~");

@@ -2,7 +2,6 @@
 	pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
-<!-- <link rel="shortcut icon" href="#"> -->
 <%@include file="/common/Header_jy.jsp"%>
 <body>
 	<div class="wrapper d-flex align-items-stretch">
@@ -34,7 +33,7 @@
 													</div>
 												</h1>
 												<div class="FundingPricing_fee">
-													<span>수수료 </span><strong>5% </strong><small>(VAT 별도)</small>
+													<span>가격 </span><strong>17,500원</strong>
 												</div>
 											</div>
 
@@ -70,7 +69,7 @@
 													</div>
 												</h1>
 												<div class="FundingPricing_fee">
-													<span>수수료 </span><strong>8% </strong><small>(VAT 별도)</small>
+													<span>가격 </span><strong>19,500원 </strong>
 												</div>
 
 											</div>
@@ -100,7 +99,7 @@
 													</div>
 												</h1>
 												<div class="FundingPricing_fee">
-													<span>수수료 </span><strong>13% </strong><small>(VAT 별도)</small>
+													<span>가격 </span><strong>21,500원 </strong>
 												</div>
 											</div>
 
@@ -129,17 +128,19 @@
 			<div class="FundingBaseInfo_btnWrapper__3J9jG"
 				style="margin-top: 40px;">
 				<button type="button" class="wz button primary" id="save_bt">저장하기</button>
+				<button type="button" class="wz button primary" id="order_bt">결제하기</button>
 			</div>
 			<!-- content end -->
 		</div>
 	</div>
 <script>
 var choiceMembership = '';
+var price ='';
+var memberId = '${user.memberId}';
 var fundIdx = ${fund.fundIdx};
 var buttonHtml = '이걸로 할게요';
 var choiceHtml = '✔️이걸로 골랐어요';
 var choiceBg= 'linear-gradient(118deg,#bbf5c5,#65bfce)';
-var togglePrice = 0;
 $(function() {
 	btnDisabled();
 	//저장된 데이터 있을 시 불러오기
@@ -162,6 +163,7 @@ $(function() {
 $('#b1').click(function() {
 	btnEnabled();
 	choiceMembership = '라이트';
+	price = '17500';
 	if ($(this).html() == buttonHtml) {
 		$(this).html(choiceHtml).css('background-image', choiceBg);
 		$('#b2, #b3').html(buttonHtml).css('background', '');
@@ -174,6 +176,7 @@ $('#b1').click(function() {
 $('#b2').click(function() {
 	btnEnabled();
 	choiceMembership = '베이직';
+	price = '19500';
 	if ($(this).html() == buttonHtml) {
 		$(this).html(choiceHtml).css('background-image', choiceBg);
 		$('#b1, #b3').html(buttonHtml).css('background', '');
@@ -185,7 +188,8 @@ $('#b2').click(function() {
 
 $('#b3').click(function() {
 	btnEnabled();
-	choiceMembership = '프로';					
+	choiceMembership = '프로';			
+	price = '21500';
 	if ($(this).html() == buttonHtml) {
 		$(this).html(choiceHtml).css('background-image',choiceBg);
 		$('#b1, #b2').html(buttonHtml).css('background', '');
@@ -234,8 +238,7 @@ $('#save_bt').click(
 					alert("저장했어요.");
 					console.log(data);
 				},
-				error : function(jqXHR, textStatus,
-						errorThrown) {
+				error : function(jqXHR, textStatus,errorThrown) {
 					alert("ERROR : " + textStatus
 							+ " : " + errorThrown);
 				}
@@ -245,6 +248,49 @@ $('#save_bt').click(
 	});
 
 </script>
-
+<script>
+$('#order_bt').click(
+		function() {
+			alert("클릭");
+			if ($('#b1').html() == choiceHtml || $('#b2').html() == choiceHtml || $('#b3').html() == choiceHtml) {
+				/* $.ajax("pricingOrder.do", {
+					type : "post",
+					data : JSON.stringify({
+						fundMembership : choiceMembership ,
+						fundIdx : fundIdx ,
+						price : price
+						}), // 서버쪽으로 JSON 문자열 전달
+					contentType : "application/json", // 서버로 전송하는 컨텐츠 유형(JSON 형식)
+					dataType : "text", // 서버로부터 응답받는 데이터 형식
+					success : function(data) {
+						location.href = "goOrderPage.do"
+					},
+					error : function(jqXHR, textStatus,errorThrown) {
+						alert("ERROR : " + textStatus
+								+ " : " + errorThrown);
+					}
+				}); */
+				
+				$.ajax({
+					type : "POST",
+					url : "pricingOrder.do",
+					data : {
+						makerPricingName : choiceMembership,
+						makerPricingPrice : price,
+						fundIdx : fundIdx,
+						memberId : memberId
+					},
+					success : function(data) {
+						location.href = "goOrderPage.do"
+					},
+					error : function() {
+						alert("[오류발생] 담당자에게 문의하세요.");
+					}
+				});
+			}
+			
+		});
+		
+</script>
 </body>
 </html>

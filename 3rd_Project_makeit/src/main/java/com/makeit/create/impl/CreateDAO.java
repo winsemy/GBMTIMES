@@ -178,6 +178,21 @@ public class CreateDAO {
 		return mybatis.selectOne("createDAO.findOrderCnt", vo);
 	}
 
+	public MemberVO getMakerInfor(String memberId) {
+		System.out.println("===> MyBatis 사용  getMakerInfor(vo) 실행");
+		return mybatis.selectOne("createDAO.getMakerInfor", memberId);
+	}
+
+	public void pricingInsert(MemberVO mvo) {
+		System.out.println("===> MyBatis 사용  pricingInsert(mvo) 실행");
+		mybatis.update("createDAO.pricingInsert", mvo);
+	}
+
+	public MemberVO orderinfo(MemberVO mvo) {
+		System.out.println("===> MyBatis 사용  orderinfo(mvo) 실행");
+		return mybatis.selectOne("createDAO.orderinfo", mvo);
+	}
+
 
 	
 

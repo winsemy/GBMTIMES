@@ -16,12 +16,31 @@
 		FROM FUND_TEMP
 	</select>
 	
-	<!-- 멤버십 저장 -->
+	<!-- 멤버 정보 가져오기 -->
+	<select id="getMakerInfor" parameterType="fund" resultType="member">
+		SELECT *
+		FROM MEMBER 
+		WHERE MEMBER_ID = #{memberId}
+	</select>
+	
+	<!-- 멤버십 저장
 	<update id="saveMembership" parameterType="fund">
 		UPDATE FUND_TEMP
 		SET FUND_MEMBERSHIP = #{fundMembership}, LAST_SAVE_DATE = SYSDATE
 		WHERE FUND_IDX = #{fundIdx}
+	</update> -->
+	
+	<!-- 멤버십 결제완료 후 저장 -->
+	<update id="pricingInsert" parameterType="member">
+		UPDATE MEMBER
+		 SET MAKER_PRICING_NAME = #{makerPricingName}, MAKER_PRICING_PRICE= #{makerPricingPrice}, MAKER_PRICING_Idx = #{makerPricingIdx}
+		 WHERE MEMBER_ID = #{memberId}
 	</update>
+	
+	<!-- 결제 내역 가져오기 -->
+	<select id="orderinfo" parameterType="member" resultType="member">
+		SELECT * FROM MEMBER WHERE MEMBER_ID = #{memberId}
+	</select>
 	
 	<!-- 기본정보 저장 -->
 	<update id="updateInfor" parameterType="fund">

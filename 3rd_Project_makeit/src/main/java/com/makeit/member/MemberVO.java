@@ -4,8 +4,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 public class MemberVO {
 	private String memberId, memberPwd, memberName, memberAddress, memberPhone, 
-				   memberEmail, memberBirth, memberInterest, memberNickname, memberPicture;
+				   memberEmail, memberBirth, memberInterest, memberNickname, memberPicture, makerPricingName, makerPricingPrice, point, makerPricingIdx;
 
+	public String getMakerPricingPrice() {
+		return makerPricingPrice;
+	}
+	public void setMakerPricingPrice(String makerPricingPrice) {
+		this.makerPricingPrice = makerPricingPrice;
+	}
 	private MultipartFile uploadPicture;
 
 	//마이페이지 카운트를 위해 생성
@@ -193,7 +199,25 @@ public class MemberVO {
 				+ memberAskCnt + ", cardCategory=" + cardCategory + ", cardNumber=" + cardNumber + ", cardExpiration="
 				+ cardExpiration + ", cardSecurity=" + cardSecurity + ", qnaIdx=" + qnaIdx + ", qnaTitle=" + qnaTitle
 				+ ", qnaContent=" + qnaContent + ", qnaImg=" + qnaImg + ", qnaDate=" + qnaDate + ", qnaHit=" + qnaHit
-				+ ", qnaDelete=" + qnaDelete + ", followCnt=" + followCnt + ", totalCnt=" + totalCnt + "]";
+				+ ", qnaDelete=" + qnaDelete + ", followCnt=" + followCnt + ", totalCnt=" + totalCnt + ", makerPricingName=" + makerPricingName + ", makerPricingPrice=" + makerPricingPrice + ", point=" + point + "]";
+	}
+	public String getMakerPricingName() {
+		return makerPricingName;
+	}
+	public void setMakerPricingName(String makerPricingName) {
+		this.makerPricingName = makerPricingName;
+	}
+	public String getPoint() {
+		return point;
+	}
+	public void setPoint(String point) {
+		this.point = point;
+	}
+	public String getMakerPricingIdx() {
+		return makerPricingIdx;
+	}
+	public void setMakerPricingIdx(String makerPricingIdx) {
+		this.makerPricingIdx = makerPricingIdx;
 	}
 	
 

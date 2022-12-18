@@ -67,6 +67,12 @@ public interface CreateService {
 
 	String findOrderCnt(FundVO vo);
 
+	MemberVO getMakerInfor(String memberId);
+
+	void pricingInsert(MemberVO mvo);
+
+	MemberVO orderinfo(MemberVO mvo);
+
 
 	
 
