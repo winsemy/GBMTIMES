@@ -1,226 +1,363 @@
 
-<!DOCTYPE mapper
-  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="createDAO">
+<!DOCTYPE html>
+<html>
 
-	<!-- fundIdx생성 -->
-	<insert id="newFundIdx" parameterType="member">
-	INSERT INTO FUND_TEMP (FUND_IDX, MEMBER_ID)
-	 	VALUES ((SELECT NVL(MAX(TO_NUMBER(FUND_IDX)),0) + 1 FROM FUND_TEMP), #{memberId})
-	</insert>
-	
-	<!-- fundIdx 조회 -->
-	<select id="getFundIdx" parameterType="fund" resultType="fund">
-		SELECT MAX(TO_NUMBER(FUND_IDX)) AS FUND_IDX 
-		FROM FUND_TEMP
-	</select>
-	
-	<!-- 멤버십 저장 -->
-	<update id="saveMembership" parameterType="fund">
-		UPDATE FUND_TEMP
-		SET FUND_MEMBERSHIP = #{fundMembership}, LAST_SAVE_DATE = SYSDATE
-		WHERE FUND_IDX = #{fundIdx}
-	</update>
-	
-	<!-- 기본정보 저장 -->
-	<update id="updateInfor" parameterType="fund">
-	UPDATE FUND_TEMP 
-		SET FUND_TITLE = #{fundTitle}, 
-			FUND_TARGET_PRICE = REPLACE(#{fundTargetPrice}, ',', ''), 
-			FUND_CATEGORY = #{fundCategory}, 
-			FUND_STARTDATE = #{fundStartDate}, 
-			FUND_ENDDATE = #{fundEndDate}, 
-			FUND_TAG = #{fundTag}, 
-			FUND_MAINIMG = CASE WHEN #{fundMainImg} IS NULL THEN FUND_MAINIMG
-							    ELSE #{fundMainImg}
-								 END, 
-			LAST_SAVE_DATE = SYSDATE
-	 		WHERE FUND_IDX = #{fundIdx}
-	</update>
-	
-	<!-- 스토리 사진 저장 -->
-	 <update id="updateStory" parameterType="fund">
-		UPDATE FUND_TEMP
-		SET FUND_DETAILIMG = #{fundDetailImg}, LAST_SAVE_DATE = SYSDATE 
-		WHERE FUND_IDX = #{fundIdx}
-	</update> 
-	
-	<!-- 옵션 저장 전 삭제 -->
-	<delete id="deleteReward" parameterType="fund">
-		DELETE FROM FUND_OPTION_TEMP
-		WHERE FUND_IDX = #{fundIdx}
-	</delete>
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- The above 4 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 
-	<!-- 옵션 저장 -->
-	<insert id="insertReward" parameterType="java.util.List">
-	<foreach collection="list" item="item" index="index" separator=" " open="INSERT ALL" close="SELECT * FROM DUAL">
-        INTO FUND_OPTION_TEMP (FUND_IDX, FUND_OPTION_TITLE, FUND_OPTION_CONTENT, FUND_OPTION_PRICE, FUND_OPTION_DELIVERY, LAST_SAVE_DATE) 
-        VALUES (#{item.fundIdx}, #{item.fundOptionTitle}, #{item.fundOptionContent}, REPLACE(#{item.fundOptionPrice}, ',', ''), REPLACE(#{item.fundOptionDelivery}, ',', ''), SYSDATE)
-    </foreach>
-	</insert>
-	
-	<!-- 함께할 멤버 이메일이 가입된 이메일인지 확인 -->
-	<select id="checkMemberEmail" parameterType="fund" resultType="member">
-		SELECT MEMBER_ID, MEMBER_EMAIL 
-		FROM MEMBER 
-		WHERE MEMBER_EMAIL = #{fundTeamMember}
-	</select>
-	
-	<!-- 함께할 멤버 이메일이 중복된 이메일인지 확인 -->
-	<select id="checkMemberEmail2" parameterType="fund" resultType="int">
-		SELECT COUNT(*) FROM FUND_TEAM
-		 WHERE FUND_TEAMMEMBER = #{fundTeamMember} AND FUND_IDX = #{fundIdx} 
- 	</select>
- 	
-	<!-- 메이커 저장 -->
-	<update id="updateMaker" parameterType="fund">
-		UPDATE FUND_TEMP
-		SET FUND_MAKER_NAME = #{fundMakerName},
-			FUND_MAKER_IMG = CASE WHEN #{fundMakerImg} IS NULL THEN FUND_MAKER_IMG
-								  ELSE #{fundMakerImg}
-								  END, 
-			FUND_MAKER_EMAIL = #{fundMakerEmail},
-			FUND_MAKER_CALLNUMBER = #{fundMakerCallNumber},
-			FUND_MAKER_HOMEPAGE = #{fundMakerHomepage},
-			FUND_TEAMMEMBER = #{fundTeamMember},
-			LAST_SAVE_DATE = SYSDATE
-		WHERE FUND_IDX = #{fundIdx}
-	</update>
-	
-	<!-- 내 펀딩 목록 -->
-	<select id="getMyFundList" parameterType="fund" resultType="fund">
-		SELECT FUND_TITLE, FUND_MAKER_NAME, FUND_MAINIMG
-		FROM FUND_PROJECT
-		WHERE MEMBER_ID = #{memberId} AND FUND_TITLE IS NOT NULL
-	</select>
-	
-	<!-- 펀딩 현황 -->
-	<select id="fundStatus" parameterType="fund" resultType="fund">
-		SELECT FUND_IDX, FUND_TITLE, FUND_CATEGORY, FUND_TARGET_PRICE, TO_CHAR(FUND_ENDDATE, 'YYYY-MM-DD') AS FUND_ENDDATE, FUND_PRICE
-		FROM FUND_PROJECT
-		WHERE FUND_TITLE = #{fundTitle}
-	</select>
-	
-	<!-- 펀딩 현황 찜 개수  -->
-	<select id="findLikeCnt"  parameterType="fund" resultType="String">
-		SELECT COUNT(*) FROM FUND_LIKE 
-		WHERE FUND_IDX = #{fundIdx} 
-	</select>
-	
-	<!-- 펀딩 현황 후원자수 -->
-	<select id="findOrderCnt"  parameterType="fund" resultType="String">
-		SELECT COUNT(*) FROM ORDERS
-		WHERE FUND_IDX = #{fundIdx} 
-	</select>
-	
-	<!-- 펀딩현황- 멤버리스트 -->
-	<select id="fundStatusMemberList" parameterType="fund" resultType="fund">
-		SELECT FUND_TEAMMEMBER, AUTHSTATUS, MEMBER_NAME
-		FROM FUND_TEAM
-		WHERE FUND_IDX = #{fundIdx}
-	</select>
-	
-	<!-- 펀딩현황 - 결제 목록 -->
-	<select id="fundStatusOrderList" parameterType="fund" resultType="store">
-		SELECT MEMBER_ID, ORDERS_OPTION_TITLE, ORDERS_DATE, ORDERS_PRICE 
-		FROM ORDERS 
-		WHERE FUND_IDX = #{fundIdx}
-		ORDER BY ORDERS_DATE DESC
-	</select>
-	
-	<!-- FUND_TEMP에 저장한 값이 있는 fundIdx 가져오기 -->
-	<select id="fundUpdate" parameterType="member" resultType="fund">
-		SELECT LAST_SAVE_DATE, MEMBER_ID, FUND_IDX 
-		FROM FUND_TEMP 
-		WHERE LAST_SAVE_DATE IS NOT NULL
-				AND MEMBER_ID = #{memberId}
-	</select>
-	
-	<!-- 최종 등록할 idx로 데이터 가져오기 -->
-	<select id="getSaveVo" parameterType="fund" resultType="fund">
-		SELECT *
-		FROM FUND_TEMP
-		WHERE FUND_IDX = #{fundIdx}
-	</select>
-	<select id="getSaveOptionVo" parameterType="fund" resultType="fund">
-		SELECT *
-		FROM FUND_OPTION_TEMP 
-		WHERE FUND_IDX = #{fundIdx}
-	</select>
-	
-	<!-- 펀딩 최종 등록 -->
-	<insert id="saveFund" parameterType="fund">
-	INSERT INTO FUND_PROJECT (FUND_IDX, MEMBER_ID, FUND_TITLE, FUND_MEMBERSHIP, FUND_MAINIMG, FUND_DETAILIMG, 
-							FUND_CATEGORY, FUND_TARGET_PRICE, FUND_STARTDATE, FUND_ENDDATE, FUND_TAG, FUND_PRICE, FUND_SUPPORTER,
-							FUND_MAKER_NAME, FUND_MAKER_IMG, FUND_MAKER_EMAIL, FUND_MAKER_HOMEPAGE, FUND_MAKER_CALLNUMBER, FUND_MAKER_ID)
-	 	VALUES (#{fundIdx}, #{memberId}, #{fundTitle}, #{fundMembership}, #{fundMainImg}, #{fundDetailImg}, 
-	 			#{fundCategory}, #{fundTargetPrice}, #{fundStartDate}, #{fundEndDate}, #{fundTag}, 0, 0,
-	 			 #{fundMakerName}, #{fundMakerImg}, #{fundMakerEmail}, #{fundMakerHomepage}, #{fundMakerCallNumber}, #{memberId})
-	</insert>
+    <!-- Title  -->
+    <title>Make-It 펀딩</title>
+	<script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    <!-- Favicon  -->
+    <link rel="icon" href="img/core-img/favicon.ico">
 
-	<insert id="saveFundOption" parameterType="java.util.List">
-	<foreach collection="list" item="item" index="index" separator=" " open="INSERT ALL" close="SELECT * FROM DUAL">
-        INTO FUND_OPTION (FUND_IDX, FUND_OPTION_PRICE, FUND_OPTION_CONTENT, FUND_OPTION_TITLE, FUND_OPTION_DELIVERY )
-        VALUES (#{item.fundIdx}, #{item.fundOptionPrice}, #{item.fundOptionContent}, #{item.fundOptionTitle}, #{item.fundOptionDelivery})
-    </foreach>
-	</insert>
-	
-	<!-- 펀딩 최종 등록끝-->
-	
-	<!-- 작성중~~~ -->
-	<select id="notNullCheck" parameterType="fund" resultType="fund">
-		SELECT FUND_MEMBERSHIP, FUND_TITLE, FUND_DETAILIMG, FUND_MAKER_NAME
-		FROM FUND_TEMP 
-		WHERE FUND_IDX = #{fundIdx}
-	</select>
-	
-	<select id="notNullCheckOption" parameterType="fund" resultType="fund">
-		SELECT FUND_OPTION_TITLE
-		FROM FUND_OPTION_TEMP
-		WHERE FUND_IDX = #{fundIdx}
-	</select>
-	
-	<!-- 작성중 데이터 불러오기 -->
-	<select id="getSaveData" parameterType="fund" resultType="fund">
-		SELECT * 
-		FROM FUND_TEMP 
-		WHERE FUND_IDX = #{fundIdx}
-	</select>
-	
-	<!-- 작성중 옵션 데이터 불러오기 -->
-	<select id="getSaveOptionData" parameterType="fund" resultType="fund">
-		SELECT * 
-		FROM FUND_OPTION_TEMP 
-		WHERE FUND_IDX = #{fundIdx}
-	</select>
-	
-	  <!-- 생성된 메일 인증키 INSERT -->
-	  <insert id="createAuthkey" parameterType="fund">
-	   <!--  UPDATE FUND_PROJECT SET AUTHKEY = #{param2} WHERE FUND_TEAMMEMBER = #{param1} -->
-	   INSERT INTO FUND_TEAM
-	   VALUES ( #{fundIdx}, REPLACE(#{fundTeamMember}, ',', ''), #{authkey}, '수락 대기중',
-	   (SELECT MEMBER_NAME
-	   	FROM MEMBER
-	  	WHERE MEMBER_EMAIL = REPLACE(#{fundTeamMember}, ',', '')
-	   ))
-	  </insert>
+    <!-- Style CSS -->
+    <link rel="stylesheet" href="style1.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+	<link rel="icon" href="img/core-img/favicon.ico">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@500;700&display=swap" rel="stylesheet">
+</head>
 
-	  <!-- authstatus 컬럼을  '수락 대기중'에서 '멤버 등록'으로 업데이트-->
-	  <update id="updateAuthstatus">
-	      UPDATE FUND_TEAM SET AUTHSTATUS = '멤버 등록' 
-	      WHERE FUND_TEAMMEMBER = #{fundTeamMember} 
-	      AND FUND_IDX = #{fundIdx}
-	  </update>
-	  
-	  <!-- 멤버 삭제 -->
-	  <delete id="memberDelete" parameterType="fund">
-			DELETE FROM FUND_TEAM
-			WHERE FUND_IDX = #{fundIdx}
-			AND FUND_TEAMMEMBER = #{fundTeamMember}
-		</delete>
-	
+<body>
+<%@include file ="/common/Header.jsp" %>
 
-</mapper>
+    <!-- Welcome Slides Area -->
+    <section class="welcome_area">
+        <div class="welSlideTwo owl-carousel">
+            <!-- Single Slide -->
+            <div class="single_slide home-3 bg-img" style="background-image: url(img/fund/advertisement/ad-1.png);">
+                <div class="container h-100">
+                    <div class="row h-100 align-items-center">
+                        <div class="col-12">
+                            <div class="welcome_slide_text text-center">
+                                <p data-animation="fadeInUp" data-delay="100ms">마지막 앵콜</p>
+                                <h2 data-animation="fadeInUp" data-delay="300ms">영국왕실의 182년간 빛난 천연 사파이어</h2>
+                                <a href="#" class="btn btn-primary" data-animation="fadeInUp" data-delay="500ms">보러가기</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Single Slide -->
+            <div class="single_slide home-3 bg-img" style="background-image: url(img/fund/advertisement/ad-2.png);">
+                <div class="container h-100">
+                    <div class="row h-100 align-items-center">
+                        <div class="col-12">
+                            <div class="welcome_slide_text text-center">
+                                <p data-animation="fadeInUp" data-delay="100ms">[국내 독점 공개]</p>
+                                <h2 data-animation="fadeInUp" data-delay="300ms">독보적인 성능에 디자인까지 갖춘 파워뱅크</h2>
+                                <a href="#" class="btn btn-primary" data-animation="fadeInUp" data-delay="500ms">보러가기</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Single Slide -->
+            <div class="single_slide home-3 bg-img" style="background-image: url(img/fund/advertisement/ad-3.png);">
+                <div class="container h-100">
+                    <div class="row h-100 align-items-center">
+                        <div class="col-12">
+                            <div class="welcome_slide_text text-center">
+                                <p data-animation="fadeInUp" data-delay="100ms">[3차 앵콜]<i class="ico-heart"></i></p>
+                                <h2 data-animation="fadeInUp" data-delay="300ms">Sports soap</h2>
+                                <a href="#" class="btn btn-primary" data-animation="fadeInUp" data-delay="500ms">보러가기</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Single Slide -->
+            <div class="single_slide home-3 bg-img" style="background-image: url(img/fund/advertisement/ad-4.png);">
+                <div class="container h-100">
+                    <div class="row h-100 align-items-center">
+                        <div class="col-12">
+                            <div class="welcome_slide_text text-center">
+                                <p data-animation="fadeInUp" data-delay="100ms">주말특가 open</p>
+                                <h2 data-animation="fadeInUp" data-delay="300ms">최대 10만원 할인</h2>
+                                <a href="#" class="btn btn-primary" data-animation="fadeInUp" data-delay="500ms">보러가기</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    <!-- Welcome Slides Area -->
+
+    <!-- Shop Catagory Area -->
+    <div class="shop_by_catagory_area section_padding_100">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="section-heading mb-50">
+                        <h5>펀딩 카테고리</h5>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="shop_by_catagory_slides owl-carousel">
+                    	
+                    	<!-- Single Slide -->
+                        <div class="single_catagory_slide">
+                            <a href="fundingPageAll.do">
+                                <img src="img/fund/categoryImg/all.png" alt=""  style="border-color: #3fe8d9;">
+                            </a>
+                            <p>전체</p>
+                        </div>
+                        
+                    	<!-- Single Slide -->
+                        <div class="single_catagory_slide">
+                            <a href="fundingPageFood.do">
+                                <img src="img/fund/categoryImg/food.png" alt="">
+                            </a>
+                            <p>푸드</p>
+                        </div>
+                        
+                        <!-- Single Slide -->
+                        <div class="single_catagory_slide">
+                            <a href="fundingPageFashion.do">
+                                <img src="img/fund/categoryImg/fashion.png" alt="">
+                            </a>
+                  				패션 잡화
+                        </div>
+                        
+                        <!-- Single Slide -->
+                        <div class="single_catagory_slide">
+                            <a href="fundingPageTech.do">
+                                <img src="img/fund/categoryImg/tech.png" alt="">
+                            </a>
+                            	테크· 가전
+                        </div>
+
+                        <!-- Single Slide -->
+                        <div class="single_catagory_slide">
+                            <a href="fundingPageBeauty.do">
+                                <img src="img/fund/categoryImg/beauty.png" alt="">
+                            </a>
+                            <p>뷰티</p>
+                        </div>
+                        
+                          <!-- Single Slide -->
+                        <div class="single_catagory_slide">
+                            <a href="fundingPageBaby.do">
+                                <img src="img/fund/categoryImg/baby.png" alt="">
+                            </a>
+                            <p>리빙·베이비</p>
+                        </div>
+
+                        <!-- Single Slide -->
+                        <div class="single_catagory_slide">
+                            <a href="fundingPageTravel.do">
+                                <img src="img/fund/categoryImg/travel.png" alt="">
+                            </a>
+                            <p>여행·스포츠</p>
+                        </div>
+
+                        <!-- Single Slide -->
+                        <div class="single_catagory_slide">
+                            <a href="fundingPageAnimal.do">
+                                <img src="img/fund/categoryImg/animal.png" alt="">
+                            </a>
+                            <p>반려동물</p>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Shop Catagory Area -->
+
+    <!-- All Products -->
+    <section class="best-selling-products-area mb-70">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="section-heading mb-50">
+                    	<h5>&nbsp;</h5>
+                        <h5><b>펀딩 홈</b></h5>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="section-heading mb-50">
+                       	<div class="classy-nav-container breakpoint-off" style="float: right; postion: absolute; z-index:2;">
+                   			<nav class="classy-navbar" id="bigshopNav">
+                   				<div class="classy-menu" >
+                   					<div class="classynav" >
+                   						<ul >
+                   							<li><a href="fundingPageAll.do">펀딩 홈</a>
+		                                        <ul class="dropdown" style=" z-index: 2">
+		                                            <li><a href="fundingPageAllEndDate.do" style=" z-index: 2;">마감 임박순</a></li>
+		                                            <li><a href="fundingPageAllFundPrice.do" style="z-index: 2;">펀딩액 순</a></li>
+		                                            <li><a href="fundingPageAllRecent.do" style="z-index: 2;">최신순</a></li>
+		                                        </ul>
+                                   			</li>
+                   						</ul>
+                   					</div>
+                   				</div>
+                   			</nav>
+               			</div>
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+           		<c:if test="${empty getBoardListAll}">
+           			<tr>
+           				<td>아직 데이터가 없습니다^^;;</td>
+           			</tr>
+           		</c:if>
+                <c:if test="${not empty getBoardListAll }">
+	                <c:forEach var="getBoardListAll" items="${getBoardListAll}">
+			                <div class="col-9 col-sm-6 col-md-4 col-lg-4">
+			                    <div class="single-product-area mb-30">
+			                        <div class="product_image">
+			                            <!-- Product Image -->
+			                           <a href="productDetailView.do?fundIdx=${getBoardListAll.fundIdx}&memberId=${user.memberId}&fundMakerId=${getBoardListAll.fundMakerId}">
+			                           		<img class="normal_img" src="img/fundingMainImg/${getBoardListAll.fundMainImg }">
+			                            </a>
+			                            
+			                            <!-- Wishlist -->
+			                            <c:if test="${fn:contains(bool,getBoardListAll.fundIdx)}">
+		                            		<div class="product_wishlist">
+						                 		<a href="javascript:fundLikeUpdate(${getBoardListAll.fundIdx })">
+						                 		<i id="heart${getBoardListAll.fundIdx }" class="fa-solid fa-heart-circle-minus"></i></a>
+						         			</div>
+			                            </c:if>
+			                    		<c:if test="${not fn:contains(bool,getBoardListAll.fundIdx)}">
+			                    			<div class="product_wishlist">
+						                 		<a href="javascript:fundLikeUpdate(${getBoardListAll.fundIdx })">
+						                 		<i id="heart1${getBoardListAll.fundIdx }" class="fa-solid fa-heart-circle-plus"></i></a>
+						         			</div>
+			                    		</c:if>
+			                        </div>
+			                        
+			                        <!-- Product Description -->
+			                        <div class="product_description">
+			                       	 	<c:choose>
+			                       	 		<c:when test ="${fn:length(getBoardListAll.fundTitle) > 15 }">
+			                           			<a href="productDetailView.do?fundIdx=${getBoardListAll.fundIdx}&memberId=${user.memberId}&fundMakerId=${getBoardListAll.fundMakerId}">${fn:substring(getBoardListAll.fundTitle,0,15) }...</a>
+			                           		</c:when>
+			                           		<c:otherwise>
+			                           			<a href="productDetailView.do?fundIdx=${getBoardListAll.fundIdx}&memberId=${user.memberId}&fundMakerId=${getBoardListAll.fundMakerId}">${fn:substring(getBoardListAll.fundTitle,0,15) }</a>
+			                           		</c:otherwise>
+			                           </c:choose>
+			                        </div>
+		                         	<div class="progress mb-3">
+		                            	<div class="progress-bar" role="progressbar" style="width: ${getBoardListAll.fundTotalPricePercent }%; background-color:#00c4c4;" aria-valuenow="${getBoardListAll.fundTotalPricePercent }" aria-valuemin="0" aria-valuemax="100"></div>
+		                       	 	</div>
+		                       	 	
+		                            <p class="price mb-2" style="font-weight:bold">
+		                            	<b style="font-size:17px; color: #00c4c4;">${getBoardListAll.fundTotalPricePercent } % </b><b>·  ${getBoardListAll.fundPrice} 원 펀딩</b>
+	                            		<c:choose >
+			                            	<c:when test="${getBoardListAll.fundDday > 10 }">
+					                       		<b class="product-price"style="float: right; font-size:17px;">${getBoardListAll.fundDday } 일 남음</b>
+				                       		</c:when>
+				                            <c:otherwise>
+					                       		<b class="title mb-2" style="color:red; float: right; font-size:17px;">${getBoardListAll.fundDday } 일 남음</b>
+				                       		</c:otherwise>
+			                       		</c:choose>
+	                            	</p>
+			                    </div>
+			                </div>
+	                </c:forEach>
+           		</c:if>
+            </div>
+        </div>
+        <!-- Pagination Area -->
+		<div class="container" >
+			<div class="shop_pagination_area mt-30">
+				<nav aria-label="Page navigation">
+					<ul class="pagination pagination-sm justify-content-center"  style="display: flex;" id="ajaxpageinsert" >
+						<c:if test="${page.beginPage==1 }">
+							<li class="page-item">
+								<a class="page-link"><i class="fa fa-angle-left" aria-hidden="false"></i></a>
+							</li>
+						</c:if>
+						<c:if test="${page.beginPage!=1 }">
+							<li class="page-item">
+								<a class="page-link" href="fundingPageAll.do?cPage=${page.beginPage-1}"><i class="fa fa-angle-left" aria-hidden="true"></i></a>
+							</li>
+						</c:if>
+						
+						<c:forEach var="pageNo" begin="${page.beginPage }" end="${page.endPage }">
+							<c:if test="${pageNo == page.nowPage }">
+								<li class="page-item active">
+									<a class="page-link">${pageNo }</a>
+								</li>
+		
+							</c:if>
+							<c:if test="${pageNo != page.nowPage }">
+								<li class="page-item">
+									<a class="page-link" href="fundingPageAll.do?cPage=${pageNo }">${pageNo }</a>
+								</li>
+							</c:if>
+						</c:forEach>
+						
+						<c:if test="${page.endPage < page.totalPage }">
+						<li class="page-item"> 
+							<a class="page-link" href="fundingPageAll.do?cPage=${page.endPage +1 }"><i class="fa fa-angle-right" aria-hidden="true"></i></a>
+						</li>
+						</c:if>
+						<c:if test="${page.endPage >= page.totalPage  }">
+							<li class="page-item">
+								<a class="page-link"><i class="fa fa-angle-right" aria-hidden="false"></i></a>
+							</li>
+						</c:if>
+					</ul>
+				</nav>
+			</div>
+		</div>
+		<!-- Pagination Area End-->
+    </section>
+    <!-- All Products End -->
+    
+    
+  <script>
+  
+//Ajax 요청처리로 찜하기
+	function fundLikeUpdate(data1) {
+		//alert("좋아요 실행~~~ ");
+		if('${user.memberId}' == null || '${user.memberId}' == '' ) {
+			alert("로그인 화면으로 이동합니다.")
+			 location.href = 'loginForm.do';
+		} else if('${user.memberId}' != null || '${user.memberId}' != '') {
+			 $.ajax("fundLikeUpdate.do", {
+				type: "post",
+				data: JSON.stringify({
+					fundIdx: data1, 
+					memberId: '${user.memberId}'
+					}), // 서버쪽으로 JSON 문자열 전달
+				contentType: "application/json",
+				dataType: "json",
+				traditional : true, //배열 넘기기
+				success: function(data){
+					 if(data == 1){
+						alert('좋아요가 추가되었습니다');
+						$("#heart1"+ data1).attr('class','fa-solid fa-heart-circle-minus');
+					} else {
+						alert('좋아요가 취소되었습니다.');
+						$("#heart" + data1).attr('class','fa-solid fa-heart-circle-plus');
+					} 
+					 
+				},
+				error : function(request, status, error){
+
+					alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+				}
+			}); 
+		}
+	}
 	
-	
+</script>
